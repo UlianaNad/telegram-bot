@@ -34,24 +34,22 @@
 
 ### Документація
 
-- [ ] PROJECT.md
-- [ ] ROADMAP.md
-- [ ] TODO.md
-- [ ] DATABASE.md
-- [ ] BUSINESS_RULES.md
-- [ ] UI_FLOW.md
-- [ ] ROLES.md
-- [ ] USE_CASES.md
-- [ ] API.md
-- [ ] CHANGELOG.md
+✅ PROJECT.md
+✅ ROADMAP.md
+✅ TODO.md
+✅ DATABASE.md
+✅ BUSINESS_RULES.md
+✅ UI_FLOW.md
+✅ ROLES.md
+✅ USE_CASES.md
 
 ### Архітектура
 
-- [ ] Спроєктувати структуру проєкту
-- [ ] Спроєктувати модель даних
-- [ ] Спроєктувати систему доступу (`userType` + `employeeRole`)
-- [ ] Спроєктувати навігацію
-- [ ] Спроєктувати життєвий цикл Visit
+✅ Спроєктувати структуру проєкту
+✅ Спроєктувати модель даних
+✅ Спроєктувати систему доступу (`userType` + `employeeRole`)
+✅ Спроєктувати навігацію
+✅ Спроєктувати життєвий цикл Visit
 
 ✅ Результат
 
