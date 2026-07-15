@@ -1,9 +1,7 @@
-import "dotenv/config";
 import {bot} from "./bot/bot.js";
+import { registerStartCommand } from "./bot/commands/start.command.js";
 
-bot.command("start", async (ctx) => {
-  await ctx.reply("PlayRoom CRM запущено 🚀");
-});
+registerStartCommand(bot);
 
 bot.start();
 
