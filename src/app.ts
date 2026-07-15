@@ -1,8 +1,8 @@
 import {bot} from "./bot/bot.js";
-import { registerStartCommand } from "./bot/commands/start.command.js";
+import { registerBot } from "./bot/register.js";
 
-registerStartCommand(bot);
+registerBot(bot);
 
-bot.start();
+await bot.start();
 
 console.log("Bot is running...");
