@@ -7,7 +7,7 @@ export interface Screen {
 }
 
 export async function renderScreen(ctx: Context, screen: Screen) {
-    if("callback_query" in ctx.update) {
+    if("callbackQuery" in ctx.update) {
         await ctx.editMessageText(screen.text, {
             reply_markup: screen.keyboard,
             parse_mode: screen.parse_mode ?? "HTML",
