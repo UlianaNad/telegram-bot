@@ -5,10 +5,14 @@ import { findOrCreateUser } from "../../modules/user/user.service.js";
 export function registerStartCommand(bot: Bot) {
     bot.command("start", async (ctx) => {
          if (!ctx.from) {
-        return;
+            return;
         }
-        const telegramId = BigInt(ctx.from.id);
-        const user = await findOrCreateUser(ctx.from);
+        const user = await findOrCreateUser({
+            telegramId: BigInt(ctx.from.id),
+            firstName: ctx.from.first_name,
+            lastName: ctx.from.last_name,
+            username: ctx.from.username
+        });
         console.log("User:", user);
         await showHome(ctx);
     });

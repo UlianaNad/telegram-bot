@@ -3,21 +3,21 @@ import {
     createUser
 } from "./user.repository.js";
 
-import { User } from "grammy/types";
+//import { User } from "grammy/types";
 
-export async function findOrCreateUser(telegramUser: User) {
-    const telegramId = BigInt(telegramUser.id);
+type CreateUserData = {
+    telegramId: bigint;
+    firstName?: string;
+    lastName?: string;
+    username?: string;
+};
 
-    const existingUser = await findUserByTelegramId(telegramId);
+export async function findOrCreateUser(data: CreateUserData) {
+      const existingUser = await findUserByTelegramId(data.telegramId);
 
     if (existingUser) {
         return existingUser;
     }
 
-    return createUser({
-        telegramId,
-        firstName: telegramUser.first_name,
-        lastName: telegramUser.last_name,
-        username: telegramUser.username,
-    });
+    return createUser(data);
 }
