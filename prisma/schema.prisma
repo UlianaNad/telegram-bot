@@ -19,14 +19,180 @@ model User {
   firstName  String?
   lastName   String?
   username   String?
+  phone      String?
 
-  userType   UserType @default(PARENT)
+  userType     UserType      @default(PARENT)
+  employeeRole EmployeeRole?
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  childAccesses ChildAccess[]
+
+  auditLogs AuditLog[]
+
+  visitsOpened Visit[] @relation("VisitOpenedBy")
+  visitsClosed Visit[] @relation("VisitClosedBy")
+
+  isActive  Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userType])
 }
 
 enum UserType {
   PARENT
   EMPLOYEE
+}
+
+enum EmployeeRole {
+  ADMIN
+  SUPER_ADMIN
+}
+
+model Child {
+  id String @id @default(cuid())
+
+  firstName String
+  birthDate DateTime
+
+  cardNumber Int @unique
+
+  notes String?
+
+  accesses ChildAccess[]
+
+  status ChildStatus @default(OUTSIDE)
+
+  visits Visit[]
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+}
+
+enum ChildStatus {
+  IN_ROOM
+  OUTSIDE
+}
+
+model ChildAccess {
+  id String @id @default(cuid())
+
+  userId  String
+  childId String
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Restrict)
+  child Child @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  role ChildRole @default(PARENT)
+
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, childId])
+  @@index([userId])
+  @@index([childId])
+}
+
+enum ChildRole {
+  OWNER
+  PARENT
+  GUARDIAN
+}
+
+model Visit {
+  id String @id @default(cuid())
+
+  childId String
+  child   Child @relation(fields: [childId], references: [id], onDelete: Restrict)
+
+  openedById String?
+  openedBy   User?   @relation("VisitOpenedBy", fields: [openedById], references: [id], onDelete: SetNull)
+
+  closedById String?
+  closedBy   User?   @relation("VisitClosedBy", fields: [closedById], references: [id], onDelete: SetNull)
+
+  status VisitStatus @default(ACTIVE)
+
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+
+  durationMinutes Int?
+
+  // ціна у копійках (наприклад, 5000 = 50.00 UAH)
+  priceCents Int?
+
+  isFreeVisit Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([childId])
+  @@index([status])
+  @@index([startedAt])
+  @@index([openedById])
+  @@index([closedById])
+}
+
+enum VisitStatus {
+  ACTIVE
+  FINISHED
+  CANCELLED
+  PENDING
+}
+
+// Глобальні налаштування — очікується рівно один рядок з id = "global".
+// Створюйте його через upsert({ where: { id: "global" }, ... }),
+// а не create(), щоб уникнути дублікатів.
+model Settings {
+  id String @id @default("global")
+
+  priceFirst30MinutesCents Int
+  priceNext10MinutesCents  Int
+
+  freeVisitEvery Int
+
+  currency String @default("UAH")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id String @id @default(cuid())
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  action AuditAction
+
+  entity   AuditEntity
+  entityId String?
+
+  // старі/нові значення або інший контекст дії
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+enum AuditEntity {
+  USER
+  CHILD
+  VISIT
+  SETTINGS
 }
