@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/UlianaNad/telegram-bot#readme",
   "dependencies": {
+    "@grammyjs/conversations": "^2.1.1",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "dotenv": "^17.4.2",
