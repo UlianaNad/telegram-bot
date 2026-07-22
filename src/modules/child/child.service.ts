@@ -1,8 +1,10 @@
+import { getSettings } from "../settings/settings.repository.js";
 import {
     findChildrenByUserId,
     createChildWithOwner,
+    findChildById,
 } from "./child.repository.js";
-import { ChildKeyboardItem } from "./child.types.js";
+import { ChildCardData, ChildKeyboardItem } from "./child.types.js";
 
 /**
  * Повертає дітей для відображення у клавіатурі.
@@ -31,4 +33,26 @@ export async function addChild(
         firstName: data.firstName,
         birthDate: data.birthDate,
     });
+}
+
+/**
+ * Збирає дані для картки дитини: сирі поля Child + розрахунок
+ * "скільки платних візитів лишилось до бонусної години".
+ */
+export async function getChildCardData(childId: string): Promise<ChildCardData | null> {
+    const child = await findChildById(childId);
+    if (!child) return null;
+
+    const settings = await getSettings();
+    const visitsUntilBonus = Math.max(settings.freeVisitEvery - child.loyaltyVisits, 0);
+
+    return {
+        firstName: child.firstName,
+        cardNumber: child.cardNumber,
+        birthDate: child.birthDate,
+        status: child.status,
+        totalVisits: child.totalVisits,
+        freeVisitBalance: child.freeVisitBalance,
+        visitsUntilBonus,
+    };
 }

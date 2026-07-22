@@ -1,9 +1,9 @@
 import { Conversation } from "@grammyjs/conversations";
 import { BotContext } from "../../shared/types/context.js";
-import { addChild } from "../child/child.service.js";
-import { formatCardNumber } from "../child/child.repository.js";
+import { addChild } from "./child.service.js";
+import { formatCardNumber } from "./child.repository.js";
 import { findOrCreateUser } from "../user/user.service.js";
-import { showChildren } from "../child/child.handler.js";
+import { showChildren } from "./child.handler.js";
 
 const NAME_REGEX = /^[A-Za-zА-Яа-яЇїІіЄєҐґ'’\- ]{2,50}$/;
 const DATE_REGEX = /^(\d{2})[.\/](\d{2})[.\/](\d{4})$/;

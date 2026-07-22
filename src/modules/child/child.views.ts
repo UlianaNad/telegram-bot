@@ -1,10 +1,36 @@
-/**
- * Формує текст екрана "Мої діти".
- */
+import { ChildStatus } from "../../generated/prisma/enums.js";
+import { ChildCardData } from "./child.types.js";
+
 export function createChildText(): string {
     return `
 👶 <b>Діти</b>
 
 Оберіть дитину.
+`;
+}
+
+const STATUS_LABELS: Record<ChildStatus, string> = {
+    IN_ROOM: "🟢 У кімнаті",
+    OUTSIDE: "⚪ Поза кімнатою",
+};
+
+function formatBirthDate(birthDate: Date): string {
+    const day = String(birthDate.getUTCDate()).padStart(2, "0");
+    const month = String(birthDate.getUTCMonth() + 1).padStart(2, "0");
+    const year = birthDate.getUTCFullYear();
+    return `${day}.${month}.${year}`;
+}
+
+export function createChildCardText(child: ChildCardData): string {
+    return `
+👶 <b>${child.firstName}</b>
+№${String(child.cardNumber).padStart(4, "0")}
+
+Дата народження: ${formatBirthDate(child.birthDate)}
+Статус: ${STATUS_LABELS[child.status]}
+
+Всього відвідувань: ${child.totalVisits}
+Платних до бонусу: ${child.visitsUntilBonus}
+Доступно безкоштовних годин: ${child.freeVisitBalance}
 `;
 }

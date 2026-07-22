@@ -1,11 +1,9 @@
-import {Context } from "grammy";
-import {createChildKeyboard} from "./child.keyboard.js";
-import {renderScreen} from "../../shared/telegram/render.js";
-import {createChildText} from "./child.views.js";
-import { getUserChildren } from "./child.service.js";
+import { Context } from "grammy";
+import { createChildKeyboard, createChildCardKeyboard } from "./child.keyboard.js";
+import { renderScreen } from "../../shared/telegram/render.js";
+import { createChildText, createChildCardText } from "./child.views.js";
+import { getUserChildren, getChildCardData } from "./child.service.js";
 import { findUserByTelegramId } from "../user/user.repository.js";
-
-
 
 export async function showChildren(ctx: Context) {
     if (!ctx.from) {
@@ -21,10 +19,22 @@ export async function showChildren(ctx: Context) {
 
     const children = await getUserChildren(user.id);
 
-    console.log(children);
-
     await renderScreen(ctx, {
         text: createChildText(),
         keyboard: createChildKeyboard(children),
+    });
+}
+
+export async function showChildCard(ctx: Context, childId: string) {
+    const card = await getChildCardData(childId);
+
+    if (!card) {
+        await ctx.answerCallbackQuery({ text: "Дитину не знайдено." });
+        return;
+    }
+
+    await renderScreen(ctx, {
+        text: createChildCardText(card),
+        keyboard: createChildCardKeyboard(),
     });
 }

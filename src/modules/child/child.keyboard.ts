@@ -23,3 +23,13 @@ export function createChildKeyboard(
 
     return keyboard;
 }
+
+/**
+ * Клавіатура картки дитини.
+ * "Назад" веде до списку дітей (той самий callback, що й кнопка
+ * "Мої діти" на Home-екрані — showChildren вже на нього підписаний).
+ */
+export function createChildCardKeyboard(): InlineKeyboard {
+    return new InlineKeyboard().text("⬅ Назад", CALLBACKS.HOME.CHILDREN);
+}
+ 

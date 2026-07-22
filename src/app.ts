@@ -15,6 +15,25 @@ bot.catch((err) => {
   } else {
     console.error("Unknown error:", e);
   }
+
+  // Даємо користувачу зрозумілу відповідь замість тиші.
+  // Обидва виклики обгорнуті в try/catch: якщо мережа з Telegram
+  // теж відвалилась (HttpError), ці виклики самі впадуть — і це нормально,
+  // тут вже нічого більше зробити не можна.
+  void (async () => {
+    try {
+      if ("callbackQuery" in ctx.update) {
+        await ctx.answerCallbackQuery({
+          text: "Сталася помилка, спробуйте пізніше.",
+          show_alert: true,
+        });
+      } else {
+        await ctx.reply("Сталася помилка, спробуйте пізніше.");
+      }
+    } catch (notifyError) {
+      console.error("Не вдалося повідомити користувача про помилку:", notifyError);
+    }
+  })();
 });
 
 await bot.start();

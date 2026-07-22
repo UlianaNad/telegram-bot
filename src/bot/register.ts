@@ -4,7 +4,7 @@ import { registerStartCommand } from "./commands/start.command.js";
 import { showChildren } from "../modules/child/child.handler.js";
 import { CALLBACKS } from "../shared/telegram/callbacks.js";
 import { conversations, createConversation } from "@grammyjs/conversations";
-import { addChildConversation } from "../modules/conversations/add-child.conversation.js";
+import { addChildConversation } from "../modules/child/add-child.conversation.js";
 import { registerChildCallbacks } from "../modules/child/child.callback.js";
 
 export function registerBot(bot: Bot<BotContext>) {

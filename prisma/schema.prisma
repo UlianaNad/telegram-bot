@@ -65,6 +65,12 @@ model Child {
 
   visits Visit[]
 
+  // ── нове: лічильники лояльності ──
+  totalVisits      Int @default(0) // всього завершених візитів
+  loyaltyVisits    Int @default(0) // платних візитів з моменту останнього бонусу
+  freeVisitBalance Int @default(0) // скільки безкоштовних годин доступно зараз
+  freeVisitsUsed   Int @default(0) // скільки безкоштовних годин уже використано
+
   isActive Boolean @default(true)
 
   createdAt DateTime @default(now())
@@ -140,10 +146,10 @@ model Visit {
 }
 
 enum VisitStatus {
+  PENDING    // = WAITING_ADMIN у флоу
   ACTIVE
   FINISHED
-  CANCELLED
-  PENDING
+  CANCELLED  // = REJECTED у флоу
 }
 
 // Глобальні налаштування — очікується рівно один рядок з id = "global".

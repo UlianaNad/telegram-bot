@@ -3,7 +3,6 @@ import {
     createUser
 } from "./user.repository.js";
 
-//import { User } from "grammy/types";
 
 type CreateUserData = {
     telegramId: bigint;
