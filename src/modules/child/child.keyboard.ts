@@ -1,6 +1,7 @@
-import {InlineKeyboard} from "grammy";
+import { InlineKeyboard } from "grammy";
 import { CALLBACKS } from "../../shared/telegram/callbacks.js";
 import { ChildKeyboardItem } from "./child.types.js";
+import { VisitCardStatus } from "../visit/visit.types.js";
 
 export function createChildKeyboard(
     children: ChildKeyboardItem[]
@@ -24,12 +25,25 @@ export function createChildKeyboard(
     return keyboard;
 }
 
-/**
- * Клавіатура картки дитини.
- * "Назад" веде до списку дітей (той самий callback, що й кнопка
- * "Мої діти" на Home-екрані — showChildren вже на нього підписаний).
- */
-export function createChildCardKeyboard(): InlineKeyboard {
-    return new InlineKeyboard().text("⬅ Назад", CALLBACKS.HOME.CHILDREN);
+interface ChildCardKeyboardOptions {
+    childId: string;
+    isEmployee: boolean;
+    visitStatus: VisitCardStatus;
+    activeVisitId?: string;
 }
- 
+
+export function createChildCardKeyboard(options: ChildCardKeyboardOptions): InlineKeyboard {
+    const keyboard = new InlineKeyboard();
+
+    if (options.isEmployee) {
+        if (options.visitStatus === "ACTIVE" && options.activeVisitId) {
+            keyboard.text("🏁 Завершити візит", `${CALLBACKS.VISIT.FINISH}:${options.activeVisitId}`).row();
+        }
+    } else if (options.visitStatus === "NONE") {
+        keyboard.text("▶ Почати візит", `${CALLBACKS.VISIT.START}:${options.childId}`).row();
+    }
+
+    keyboard.text("⬅ Назад", CALLBACKS.HOME.CHILDREN);
+
+    return keyboard;
+}

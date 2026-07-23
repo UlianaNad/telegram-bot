@@ -8,6 +8,14 @@ export async function findUserByTelegramId(telegramId: bigint) {
     });
 }
 
+export async function findUserById(id: string) {
+    return prisma.user.findUnique({
+        where: {
+            id,
+        },
+    });
+}
+
 export async function createUser(data: {
     telegramId: bigint;
     firstName?: string;

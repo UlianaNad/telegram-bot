@@ -16,4 +16,10 @@ export const CALLBACKS = {
         TODAY: "admin:today",
         NEW_CLIENT: "admin:new_client",
     },
+    VISIT: {
+        START: "visit:start",
+        CONFIRM: "visit:confirm",
+        REJECT: "visit:reject",
+        FINISH: "visit:finish",
+    },
 }   as const;

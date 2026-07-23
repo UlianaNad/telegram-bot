@@ -26,7 +26,14 @@ export async function showChildren(ctx: Context) {
 }
 
 export async function showChildCard(ctx: Context, childId: string) {
-    const card = await getChildCardData(childId);
+    if (!ctx.from) {
+        return;
+    }
+
+    const [card, user] = await Promise.all([
+        getChildCardData(childId),
+        findUserByTelegramId(BigInt(ctx.from.id)),
+    ]);
 
     if (!card) {
         await ctx.answerCallbackQuery({ text: "Дитину не знайдено." });
@@ -35,6 +42,11 @@ export async function showChildCard(ctx: Context, childId: string) {
 
     await renderScreen(ctx, {
         text: createChildCardText(card),
-        keyboard: createChildCardKeyboard(),
+        keyboard: createChildCardKeyboard({
+            childId,
+            isEmployee: user?.userType === "EMPLOYEE",
+            visitStatus: card.visitStatus,
+            activeVisitId: card.activeVisitId,
+        }),
     });
 }

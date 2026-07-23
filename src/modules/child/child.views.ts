@@ -22,13 +22,17 @@ function formatBirthDate(birthDate: Date): string {
 }
 
 export function createChildCardText(child: ChildCardData): string {
+    const pendingNote = child.visitStatus === "PENDING"
+        ? "\n⏳ Очікує підтвердження адміністратора.\n"
+        : "";
+
     return `
 👶 <b>${child.firstName}</b>
 №${String(child.cardNumber).padStart(4, "0")}
 
 Дата народження: ${formatBirthDate(child.birthDate)}
 Статус: ${STATUS_LABELS[child.status]}
-
+${pendingNote}
 Всього відвідувань: ${child.totalVisits}
 Платних до бонусу: ${child.visitsUntilBonus}
 Доступно безкоштовних годин: ${child.freeVisitBalance}

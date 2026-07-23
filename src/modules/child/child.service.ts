@@ -5,6 +5,7 @@ import {
     findChildById,
 } from "./child.repository.js";
 import { ChildCardData, ChildKeyboardItem } from "./child.types.js";
+import { findActiveOrPendingVisitByChildId } from "../visit/visit.repository.js";
 
 /**
  * Повертає дітей для відображення у клавіатурі.
@@ -45,7 +46,8 @@ export async function getChildCardData(childId: string): Promise<ChildCardData |
 
     const settings = await getSettings();
     const visitsUntilBonus = Math.max(settings.freeVisitEvery - child.loyaltyVisits, 0);
-
+    const activeVisit = await findActiveOrPendingVisitByChildId(childId);
+    
     return {
         firstName: child.firstName,
         cardNumber: child.cardNumber,
@@ -54,5 +56,7 @@ export async function getChildCardData(childId: string): Promise<ChildCardData |
         totalVisits: child.totalVisits,
         freeVisitBalance: child.freeVisitBalance,
         visitsUntilBonus,
+        visitStatus: activeVisit?.status === "ACTIVE" ? "ACTIVE" : activeVisit?.status === "PENDING" ? "PENDING" : "NONE",
+        activeVisitId: activeVisit?.status === "ACTIVE" ? activeVisit.id : undefined,
     };
 }

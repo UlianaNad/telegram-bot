@@ -1,0 +1,1 @@
+export type VisitCardStatus = "NONE" | "PENDING" | "ACTIVE";

@@ -1,4 +1,5 @@
 import { ChildStatus } from "../../generated/prisma/enums.js";
+import { VisitCardStatus } from "../visit/visit.types.js";
 
 export type ChildKeyboardItem = {
     id: string;
@@ -14,4 +15,6 @@ export type ChildCardData = {
     totalVisits: number;
     freeVisitBalance: number;
     visitsUntilBonus: number;
+    visitStatus: VisitCardStatus;
+    activeVisitId?: string;
 };
