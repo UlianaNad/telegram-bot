@@ -4,9 +4,13 @@ import {
     createChildWithOwner,
     findChildById,
     searchChildren,
+    findAccessesByChildId,
+    findAccessForUser,
+    grantParentAccess,
 } from "./child.repository.js";
 import { ChildCardData, ChildKeyboardItem } from "./child.types.js";
 import { findActiveOrPendingVisitByChildId } from "../visit/visit.repository.js";
+import { findUserByPhone } from "../user/user.repository.js";
 
 /**
  * Повертає дітей для відображення у клавіатурі.
@@ -69,4 +73,34 @@ export async function searchChildrenForAdmin(query: string): Promise<ChildKeyboa
         firstName: child.firstName,
         cardNumber: child.cardNumber,
     }));
+}
+
+
+export async function getChildParents(childId: string) {
+    const accesses = await findAccessesByChildId(childId);
+    return accesses.map((access) => ({
+        role: access.role,
+        firstName: access.user.firstName,
+        lastName: access.user.lastName,
+        phone: access.user.phone,
+    }));
+}
+
+export async function isChildOwner(childId: string, userId: string): Promise<boolean> {
+    const access = await findAccessForUser(childId, userId);
+    return access?.role === "OWNER" && access.isActive;
+}
+
+export async function inviteParentByPhone(childId: string, phone: string) {
+    const user = await findUserByPhone(phone);
+    if (!user) {
+        return { ok: false as const };
+    }
+
+    const result = await grantParentAccess(childId, user.id);
+    return {
+        ok: true as const,
+        alreadyHadAccess: result.alreadyHadAccess,
+        parentName: [user.firstName, user.lastName].filter(Boolean).join(" ") || "Батьки",
+    };
 }

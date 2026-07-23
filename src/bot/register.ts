@@ -10,12 +10,14 @@ import { registerAdminCallbacks } from "../modules/admin/admin.callback.js";
 import { registerVisitCallbacks } from "../modules/visit/visit.callback.js";
 import { adminSearchConversation } from "../modules/admin/admin-search.conversation.js";
 import { registerUserConversation } from "../modules/user/register-user.conversation.js";
+import { inviteParentConversation } from "../modules/child/invite-parent.conversation.js";
 
 export function registerBot(bot: Bot<BotContext>) {
     bot.use(conversations());
     bot.use(createConversation(addChildConversation));
     bot.use(createConversation(adminSearchConversation));
     bot.use(createConversation(registerUserConversation));
+    bot.use(createConversation(inviteParentConversation));
 
     registerStartCommand(bot);
 

@@ -9,6 +9,8 @@ export const CALLBACKS = {
         CARD: "child:card",
         ADD: "child:add",
         BACK: "child:back",
+        PARENTS: "child:parents",
+        PARENTS_ADD: "child:parents_add",
     },
     ADMIN: {
         SEARCH: "admin:search",

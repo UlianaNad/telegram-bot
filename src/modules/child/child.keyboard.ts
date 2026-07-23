@@ -44,8 +44,21 @@ export function createChildCardKeyboard(options: ChildCardKeyboardOptions): Inli
         if (options.visitStatus === "NONE") {
             keyboard.text("▶ Почати візит", `${CALLBACKS.VISIT.START}:${options.childId}`).row();
         }
+        keyboard.text("👨‍👩‍👧 Батьки", `${CALLBACKS.CHILD.PARENTS}:${options.childId}`).row();
         keyboard.text("⬅ Назад", CALLBACKS.HOME.CHILDREN);
     }
+
+    return keyboard;
+}
+
+export function createChildParentsKeyboard(childId: string, isOwner: boolean): InlineKeyboard {
+    const keyboard = new InlineKeyboard();
+
+    if (isOwner) {
+        keyboard.text("➕ Додати батька/матір", `${CALLBACKS.CHILD.PARENTS_ADD}:${childId}`).row();
+    }
+
+    keyboard.text("⬅ Назад", `${CALLBACKS.CHILD.CARD}:${childId}`);
 
     return keyboard;
 }

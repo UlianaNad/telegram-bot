@@ -9,6 +9,7 @@ type CreateUserData = {
     firstName?: string;
     lastName?: string;
     username?: string;
+    phone?: string;
 };
 
 export async function findOrCreateUser(data: CreateUserData) {

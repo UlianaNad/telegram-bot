@@ -1,9 +1,19 @@
 import { Conversation } from "@grammyjs/conversations";
 import { Keyboard } from "grammy";
 import { BotContext } from "../../shared/types/context.js";
-import { findOrCreateUser } from "../user/user.service.js";
+import { createUser, findUserByPhone } from "../user/user.repository.js";
 import { showHome } from "../home/home.handler.js";
 import { showAdminHome } from "../admin/admin.handler.js";
+
+function normalizePhone(raw: string): string {
+    // Прибираємо все, крім цифр і початкового "+" —
+    // різні клієнти Telegram віддають номер по-різному
+    // (з "+", без нього, з пробілами).
+    const trimmed = raw.trim();
+    const hasPlus = trimmed.startsWith("+");
+    const digits = trimmed.replace(/\D/g, "");
+    return hasPlus ? `+${digits}` : digits;
+}
 
 export async function registerUserConversation(
   conversation: Conversation<BotContext, BotContext>,
@@ -33,7 +43,7 @@ export async function registerUserConversation(
         await ctx.reply("Будь ласка, поділіться саме своїм номером телефону.");
         continue;
       }
-      phone = message.contact.phone_number;
+      phone = normalizePhone(message.contact.phone_number);
       break;
     }
 
@@ -43,7 +53,17 @@ export async function registerUserConversation(
     );
   }
 
-  const user = await findOrCreateUser({
+  const existingByPhone = await findUserByPhone(phone);
+
+  if (existingByPhone) {
+    await ctx.reply(
+      "Цей номер телефону вже зареєстрований в іншому акаунті. Зверніться до адміністратора закладу.",
+      { reply_markup: { remove_keyboard: true } }
+    );
+    return;
+  }
+
+  const user = await createUser({
     telegramId: BigInt(ctx.from.id),
     firstName: ctx.from.first_name,
     lastName: ctx.from.last_name,

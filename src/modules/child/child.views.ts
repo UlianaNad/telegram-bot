@@ -38,3 +38,26 @@ ${pendingNote}
 Доступно безкоштовних годин: ${child.freeVisitBalance}
 `;
 }
+
+const ROLE_LABELS: Record<string, string> = {
+    OWNER: "👑 Власник",
+    PARENT: "👨‍👩‍👧 Батьки",
+    GUARDIAN: "🧑‍🤝‍🧑 Опікун",
+};
+
+export function createChildParentsText(
+    parents: { firstName: string | null; lastName: string | null; phone: string | null; role: string }[]
+): string {
+    const items = parents
+        .map((p) => {
+            const name = [p.firstName, p.lastName].filter(Boolean).join(" ") || "Без імені";
+            return `${ROLE_LABELS[p.role] ?? p.role}\n${name}\n${p.phone ?? "—"}`;
+        })
+        .join("\n━━━━━━━━━━━━\n");
+
+    return `
+👨‍👩‍👧 <b>Батьки</b>
+
+${items}
+`;
+}

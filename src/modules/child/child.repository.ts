@@ -136,3 +136,41 @@ export async function searchChildren(query: string) {
         take: 20,
     });
 }
+
+export async function findAccessesByChildId(childId: string) {
+    return prisma.childAccess.findMany({
+        where: { childId, isActive: true },
+        include: { user: true },
+        orderBy: { createdAt: "asc" },
+    });
+}
+
+export async function findAccessForUser(childId: string, userId: string) {
+    return prisma.childAccess.findUnique({
+        where: { userId_childId: { userId, childId } },
+    });
+}
+
+/**
+ * Видає доступ ролі PARENT. Якщо доступ уже існував, але був
+ * деактивований раніше — реактивує його замість дубліката.
+ */
+export async function grantParentAccess(childId: string, userId: string) {
+    const existing = await findAccessForUser(childId, userId);
+
+    if (existing) {
+        if (existing.isActive) {
+            return { access: existing, alreadyHadAccess: true };
+        }
+        const reactivated = await prisma.childAccess.update({
+            where: { id: existing.id },
+            data: { isActive: true },
+        });
+        return { access: reactivated, alreadyHadAccess: false };
+    }
+
+    const created = await prisma.childAccess.create({
+        data: { childId, userId, role: "PARENT" },
+    });
+    return { access: created, alreadyHadAccess: false };
+}
