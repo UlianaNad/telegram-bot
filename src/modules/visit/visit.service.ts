@@ -5,6 +5,8 @@ import {
     confirmVisitAndSetInRoom,
     rejectVisit as rejectVisitRepo,
     finishVisitTransaction,
+    findActiveVisitsWithChildren,
+    getVisitStatsForRange,
 } from "./visit.repository.js";
 import { getSettings } from "../settings/settings.repository.js";
 import { findChildById } from "../child/child.repository.js";
@@ -63,4 +65,25 @@ export async function finishVisit(visitId: string, adminId: string) {
     const childAfterFinish = await findChildById(visit.childId);
 
     return { visit: finishedVisit, durationMinutes, priceCents, isFreeVisit, child: childAfterFinish };
+}
+
+export async function getActiveVisits() {
+    const visits = await findActiveVisitsWithChildren();
+    return visits.map((visit) => ({
+        childId: visit.childId,
+        firstName: visit.child.firstName,
+        cardNumber: visit.child.cardNumber,
+        startedAt: visit.startedAt,
+    }));
+}
+
+export async function getTodayStats() {
+    const now = new Date();
+    const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const to = new Date(from.getTime() + 24 * 60 * 60 * 1000);
+
+    const stats = await getVisitStatsForRange(from, to);
+    const settings = await getSettings();
+
+    return { ...stats, currency: settings.currency };
 }

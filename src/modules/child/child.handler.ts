@@ -4,6 +4,9 @@ import { renderScreen } from "../../shared/telegram/render.js";
 import { createChildText, createChildCardText } from "./child.views.js";
 import { getUserChildren, getChildCardData } from "./child.service.js";
 import { findUserByTelegramId } from "../user/user.repository.js";
+import { createAdminHomeText, createTodayStatsText } from "../admin/admin.views.js";
+import { createAdminBackKeyboard, createAdminHomeKeyboard } from "../admin/admin.keyboard.js";
+import { getTodayStats } from "../visit/visit.service.js";
 
 export async function showChildren(ctx: Context) {
     if (!ctx.from) {
@@ -48,5 +51,22 @@ export async function showChildCard(ctx: Context, childId: string) {
             visitStatus: card.visitStatus,
             activeVisitId: card.activeVisitId,
         }),
+    });
+}
+
+
+export async function showAdminHome(ctx: Context) {
+    await renderScreen(ctx, {
+        text: createAdminHomeText(),
+        keyboard: createAdminHomeKeyboard(),
+    });
+}
+
+export async function showTodayStats(ctx: Context) {
+    const stats = await getTodayStats();
+
+    await renderScreen(ctx, {
+        text: createTodayStatsText(stats),
+        keyboard: createAdminBackKeyboard(),
     });
 }

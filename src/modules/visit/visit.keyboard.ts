@@ -10,3 +10,22 @@ export function createVisitRequestKeyboard(visitId: string): InlineKeyboard {
 export function createVisitActiveKeyboard(visitId: string): InlineKeyboard {
     return new InlineKeyboard().text("🏁 Завершити візит", `${CALLBACKS.VISIT.FINISH}:${visitId}`);
 }
+
+export function createActiveVisitsKeyboard(
+    visits: { childId: string; firstName: string; cardNumber: number }[]
+): InlineKeyboard {
+    const keyboard = new InlineKeyboard();
+
+    for (const visit of visits) {
+        keyboard
+            .text(
+                `${visit.firstName}   №${String(visit.cardNumber).padStart(4, "0")}`,
+                `${CALLBACKS.CHILD.CARD}:${visit.childId}`
+            )
+            .row();
+    }
+
+    keyboard.text("⬅ Назад", CALLBACKS.ADMIN.BACK);
+
+    return keyboard;
+}

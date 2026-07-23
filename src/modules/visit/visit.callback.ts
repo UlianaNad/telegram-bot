@@ -14,7 +14,7 @@ import {
     createVisitRejectedTextForParent,
     createVisitFinishedText,
 } from "./visit.views.js";
-import { createVisitRequestKeyboard, createVisitActiveKeyboard } from "./visit.keybord.js"
+import { createVisitRequestKeyboard, createVisitActiveKeyboard } from "./visit.keyboard.js"
 import { showChildCard } from "../child/child.handler.js";
 
 export function registerVisitCallbacks(bot: Bot<BotContext>) {

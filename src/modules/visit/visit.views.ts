@@ -67,3 +67,32 @@ ${priceLine}
 ${bonusLine}
 `;
 }
+
+function formatElapsed(startedAt: Date): string {
+    const totalMinutes = Math.floor((Date.now() - startedAt.getTime()) / 60000);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+}
+
+export function createActiveVisitsText(
+    visits: { firstName: string; cardNumber: number; startedAt: Date }[]
+): string {
+    if (visits.length === 0) {
+        return `
+🟢 <b>Активні візити</b>
+
+Зараз немає активних візитів.
+`;
+    }
+
+    const items = visits
+        .map((v) => `👶 ${v.firstName} №${formatCardNumber(v.cardNumber)}\n${formatElapsed(v.startedAt)}`)
+        .join("\n━━━━━━━━━━━━\n");
+
+    return `
+🟢 <b>Активні візити</b>
+
+${items}
+`;
+}

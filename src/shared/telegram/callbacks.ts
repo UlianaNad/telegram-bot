@@ -15,6 +15,7 @@ export const CALLBACKS = {
         ACTIVE_VISITS: "admin:active_visits",
         TODAY: "admin:today",
         NEW_CLIENT: "admin:new_client",
+        BACK: "admin:back",
     },
     VISIT: {
         START: "visit:start",

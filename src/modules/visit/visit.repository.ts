@@ -110,3 +110,32 @@ export async function finishVisitTransaction(input: FinishVisitInput) {
         return visit;
     });
 }
+
+export async function findActiveVisitsWithChildren() {
+    return prisma.visit.findMany({
+        where: { status: VisitStatus.ACTIVE },
+        include: { child: true },
+        orderBy: { startedAt: "asc" },
+    });
+}
+
+export async function getVisitStatsForRange(from: Date, to: Date) {
+    const finished = await prisma.visit.findMany({
+        where: {
+            status: VisitStatus.FINISHED,
+            finishedAt: { gte: from, lt: to },
+        },
+        select: { priceCents: true, isFreeVisit: true },
+    });
+
+    const activeCount = await prisma.visit.count({
+        where: { status: VisitStatus.ACTIVE },
+    });
+
+    const totalVisits = finished.length;
+    const freeVisits = finished.filter((v) => v.isFreeVisit).length;
+    const paidVisits = totalVisits - freeVisits;
+    const revenueCents = finished.reduce((sum, v) => sum + (v.priceCents ?? 0), 0);
+
+    return { totalVisits, paidVisits, freeVisits, revenueCents, activeCount };
+}

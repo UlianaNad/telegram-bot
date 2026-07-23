@@ -39,11 +39,13 @@ export function createChildCardKeyboard(options: ChildCardKeyboardOptions): Inli
         if (options.visitStatus === "ACTIVE" && options.activeVisitId) {
             keyboard.text("🏁 Завершити візит", `${CALLBACKS.VISIT.FINISH}:${options.activeVisitId}`).row();
         }
-    } else if (options.visitStatus === "NONE") {
-        keyboard.text("▶ Почати візит", `${CALLBACKS.VISIT.START}:${options.childId}`).row();
+        keyboard.text("⬅ Назад", CALLBACKS.ADMIN.BACK);
+    } else {
+        if (options.visitStatus === "NONE") {
+            keyboard.text("▶ Почати візит", `${CALLBACKS.VISIT.START}:${options.childId}`).row();
+        }
+        keyboard.text("⬅ Назад", CALLBACKS.HOME.CHILDREN);
     }
-
-    keyboard.text("⬅ Назад", CALLBACKS.HOME.CHILDREN);
 
     return keyboard;
 }

@@ -101,3 +101,38 @@ export async function createChildWithOwner(input: CreateChildWithOwnerInput) {
 export function formatCardNumber(cardNumber: number): string {
     return String(cardNumber).padStart(4, "0");
 }
+
+/**
+ * Пошук дитини за номером картки, іменем дитини, іменем/прізвищем
+ * одного з батьків або телефоном.
+ */
+export async function searchChildren(query: string) {
+    const trimmed = query.trim();
+    const isNumeric = /^\d+$/.test(trimmed);
+
+    return prisma.child.findMany({
+        where: {
+            isActive: true,
+            OR: [
+                ...(isNumeric ? [{ cardNumber: Number(trimmed) }] : []),
+                { firstName: { contains: trimmed, mode: "insensitive" } },
+                {
+                    accesses: {
+                        some: {
+                            isActive: true,
+                            user: {
+                                OR: [
+                                    { firstName: { contains: trimmed, mode: "insensitive" } },
+                                    { lastName: { contains: trimmed, mode: "insensitive" } },
+                                    { phone: { contains: trimmed } },
+                                ],
+                            },
+                        },
+                    },
+                },
+            ],
+        },
+        orderBy: { cardNumber: "asc" },
+        take: 20,
+    });
+}

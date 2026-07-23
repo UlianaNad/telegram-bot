@@ -8,10 +8,14 @@ import { addChildConversation } from "../modules/child/add-child.conversation.js
 import { registerChildCallbacks } from "../modules/child/child.callback.js";
 import { registerAdminCallbacks } from "../modules/admin/admin.callback.js";
 import { registerVisitCallbacks } from "../modules/visit/visit.callback.js";
+import { adminSearchConversation } from "../modules/admin/admin-search.conversation.js";
+import { registerUserConversation } from "../modules/user/register-user.conversation.js";
 
 export function registerBot(bot: Bot<BotContext>) {
     bot.use(conversations());
     bot.use(createConversation(addChildConversation));
+    bot.use(createConversation(adminSearchConversation));
+    bot.use(createConversation(registerUserConversation));
 
     registerStartCommand(bot);
 

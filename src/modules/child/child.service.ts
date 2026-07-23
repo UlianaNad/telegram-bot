@@ -3,6 +3,7 @@ import {
     findChildrenByUserId,
     createChildWithOwner,
     findChildById,
+    searchChildren,
 } from "./child.repository.js";
 import { ChildCardData, ChildKeyboardItem } from "./child.types.js";
 import { findActiveOrPendingVisitByChildId } from "../visit/visit.repository.js";
@@ -59,4 +60,13 @@ export async function getChildCardData(childId: string): Promise<ChildCardData |
         visitStatus: activeVisit?.status === "ACTIVE" ? "ACTIVE" : activeVisit?.status === "PENDING" ? "PENDING" : "NONE",
         activeVisitId: activeVisit?.status === "ACTIVE" ? activeVisit.id : undefined,
     };
+}
+
+export async function searchChildrenForAdmin(query: string): Promise<ChildKeyboardItem[]> {
+    const children = await searchChildren(query);
+    return children.map((child) => ({
+        id: child.id,
+        firstName: child.firstName,
+        cardNumber: child.cardNumber,
+    }));
 }
