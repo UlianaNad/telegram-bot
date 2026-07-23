@@ -1,6 +1,7 @@
-import {Bot } from "grammy";
+import { Bot } from "grammy";
 import { BotContext } from "../../shared/types/context.js";
 import { showHome } from "../../modules/home/home.handler.js";
+import { showAdminHome } from "../../modules/admin/admin.handler.js";
 import { findOrCreateUser } from "../../modules/user/user.service.js";
 
 export function registerStartCommand(bot: Bot<BotContext>) {
@@ -14,7 +15,12 @@ export function registerStartCommand(bot: Bot<BotContext>) {
             lastName: ctx.from.last_name,
             username: ctx.from.username
         });
-        console.log("User:", user);
+
+        if (user.userType === "EMPLOYEE") {
+            await showAdminHome(ctx);
+            return;
+        }
+
         await showHome(ctx);
     });
 }

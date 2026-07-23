@@ -6,6 +6,7 @@ import { CALLBACKS } from "../shared/telegram/callbacks.js";
 import { conversations, createConversation } from "@grammyjs/conversations";
 import { addChildConversation } from "../modules/child/add-child.conversation.js";
 import { registerChildCallbacks } from "../modules/child/child.callback.js";
+import { registerAdminCallbacks } from "../modules/admin/admin.callback.js";
 
 export function registerBot(bot: Bot<BotContext>) {
     bot.use(conversations());
@@ -21,4 +22,5 @@ export function registerBot(bot: Bot<BotContext>) {
     });
 
     registerChildCallbacks(bot);
+    registerAdminCallbacks(bot);
 }
