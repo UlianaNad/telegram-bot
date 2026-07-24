@@ -73,7 +73,13 @@ export function registerVisitCallbacks(bot: Bot<BotContext>) {
             return;
         }
 
-        const visit = await confirmVisit(visitId);
+        const admin = await findUserByTelegramId(BigInt(ctx.from.id));
+        if (!admin) {
+            await ctx.answerCallbackQuery({ text: "Користувача не знайдено." });
+            return;
+        }
+
+        const visit = await confirmVisit(visitId, admin.id);
         const child = await findChildById(visit.childId);
 
         await ctx.answerCallbackQuery({ text: "Візит підтверджено." });
@@ -104,7 +110,13 @@ export function registerVisitCallbacks(bot: Bot<BotContext>) {
             return;
         }
 
-        const visit = await rejectVisitRequest(visitId);
+        const admin = await findUserByTelegramId(BigInt(ctx.from.id));
+        if (!admin) {
+            await ctx.answerCallbackQuery({ text: "Користувача не знайдено." });
+            return;
+        }
+
+const visit = await rejectVisitRequest(visitId, admin.id);
         const child = await findChildById(visit.childId);
 
         await ctx.answerCallbackQuery({ text: "Запит відхилено." });

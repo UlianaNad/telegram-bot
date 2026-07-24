@@ -3,9 +3,11 @@ import { InlineKeyboard } from "grammy";
 import { BotContext } from "../../shared/types/context.js";
 import { findUserByTelegramId } from "../user/user.repository.js";
 import { isChildOwner } from "../child/child.service.js";
-import { updateChild } from "../child/child.repository.js";
+import { findChildById, updateChild } from "../child/child.repository.js";
 import { showChildCard } from "../child/child.handler.js";
 import { NAME_REGEX, parseBirthDate, waitForValidText } from "../../shared/utils/validation.js";
+import { logAudit } from "../audit/audit.service.js";
+import { AuditAction, AuditEntity } from "../../generated/prisma/enums.js";
 
 const EDIT_FIELD = {
     NAME: "editfield:name",
@@ -46,6 +48,12 @@ export async function editChildConversation(
     return;
   }
 
+  const child = await findChildById(childId);
+  if (!child) {
+    await ctx.reply("Дитину не знайдено.");
+    return;
+  }
+
   while (true) {
     await ctx.reply("Що хочете змінити?", { reply_markup: createEditMenuKeyboard() });
 
@@ -72,6 +80,14 @@ export async function editChildConversation(
         (text) => NAME_REGEX.test(text)
       );
       await updateChild(childId, { firstName });
+      await logAudit({
+        userId: user.id,
+        action: AuditAction.UPDATE,
+        entity: AuditEntity.CHILD,
+        entityId: childId,
+        metadata: { field: "firstName", before: child.firstName, after: firstName },
+      });
+      child.firstName = firstName;
       await ctx.reply("✅ Ім'я оновлено.");
       continue;
     }
@@ -91,6 +107,14 @@ export async function editChildConversation(
         }
       }
       await updateChild(childId, { birthDate });
+      await logAudit({
+        userId: user.id,
+        action: AuditAction.UPDATE,
+        entity: AuditEntity.CHILD,
+        entityId: childId,
+        metadata: { field: "birthDate", before: child.birthDate.toISOString(), after: birthDate.toISOString() },
+      });
+      child.birthDate = birthDate;
       await ctx.reply("✅ Дату народження оновлено.");
       continue;
     }
@@ -98,7 +122,16 @@ export async function editChildConversation(
     if (choice === EDIT_FIELD.NOTES) {
       await ctx.reply('Введіть нотатки (або надішліть "-", щоб очистити):');
       const raw = await waitForValidText(conversation, ctx, "Будь ласка, надішліть текст.");
-      await updateChild(childId, { notes: raw === "-" ? null : raw });
+      const newNotes = raw === "-" ? null : raw;
+      await updateChild(childId, { notes: newNotes });
+      await logAudit({
+        userId: user.id,
+        action: AuditAction.UPDATE,
+        entity: AuditEntity.CHILD,
+        entityId: childId,
+        metadata: { field: "notes", before: child.notes, after: newNotes },
+      });
+      child.notes = newNotes;
       await ctx.reply("✅ Нотатки оновлено.");
       continue;
     }

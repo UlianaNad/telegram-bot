@@ -16,6 +16,8 @@ import {
 import { ChildCardData, ChildKeyboardItem } from "./child.types.js";
 import { findActiveOrPendingVisitByChildId } from "../visit/visit.repository.js";
 import { findUserByPhone } from "../user/user.repository.js";
+import { AuditAction, AuditEntity } from "../../generated/prisma/browser.js";
+import { logAudit } from "../audit/audit.service.js";
 
 /**
  * Повертає дітей для відображення у клавіатурі.
@@ -39,11 +41,21 @@ export async function addChild(
     userId: string,
     data: { firstName: string; birthDate: Date }
 ) {
-    return createChildWithOwner({
+    const child = await createChildWithOwner({
         userId,
         firstName: data.firstName,
         birthDate: data.birthDate,
     });
+
+    await logAudit({
+        userId,
+        action: AuditAction.CREATE,
+        entity: AuditEntity.CHILD,
+        entityId: child.id,
+        metadata: { firstName: child.firstName, cardNumber: child.cardNumber },
+    });
+
+    return child;
 }
 
 /**

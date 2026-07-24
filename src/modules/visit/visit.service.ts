@@ -11,6 +11,8 @@ import {
 } from "./visit.repository.js";
 import { getSettings } from "../settings/settings.repository.js";
 import { findChildById } from "../child/child.repository.js";
+import { AuditAction, AuditEntity } from "../../generated/prisma/enums.js";
+import { logAudit } from "../audit/audit.service.js";
 
 export async function requestVisit(childId: string, parentUserId: string) {
     const existing = await findActiveOrPendingVisitByChildId(childId);
@@ -19,15 +21,44 @@ export async function requestVisit(childId: string, parentUserId: string) {
     }
 
     const visit = await createPendingVisit({ childId, openedById: parentUserId });
+
+    await logAudit({
+        userId: parentUserId,
+        action: AuditAction.CREATE,
+        entity: AuditEntity.VISIT,
+        entityId: visit.id,
+        metadata: { childId, status: "PENDING" },
+    });
+
     return { ok: true as const, visit };
 }
 
-export async function confirmVisit(visitId: string) {
-    return confirmVisitAndSetInRoom(visitId);
+export async function confirmVisit(visitId: string, adminId: string) {
+    const visit = await confirmVisitAndSetInRoom(visitId);
+
+    await logAudit({
+        userId: adminId,
+        action: AuditAction.UPDATE,
+        entity: AuditEntity.VISIT,
+        entityId: visit.id,
+        metadata: { status: "ACTIVE" },
+    });
+
+    return visit;
 }
 
-export async function rejectVisitRequest(visitId: string) {
-    return rejectVisitRepo(visitId);
+export async function rejectVisitRequest(visitId: string, adminId: string) {
+    const visit = await rejectVisitRepo(visitId);
+
+    await logAudit({
+        userId: adminId,
+        action: AuditAction.UPDATE,
+        entity: AuditEntity.VISIT,
+        entityId: visit.id,
+        metadata: { status: "CANCELLED" },
+    });
+
+    return visit;
 }
 
 function calculatePrice(durationMinutes: number, priceFirst30: number, priceNext10: number): number {
@@ -64,6 +95,15 @@ export async function finishVisit(visitId: string, adminId: string) {
     });
 
     const childAfterFinish = await findChildById(visit.childId);
+    await logAudit({
+        userId: adminId,
+        action: AuditAction.UPDATE,
+        entity: AuditEntity.VISIT,
+        entityId: finishedVisit.id,
+        metadata: { status: "FINISHED", durationMinutes, priceCents, isFreeVisit },
+    });
+
+
 
     return { visit: finishedVisit, durationMinutes, priceCents, isFreeVisit, child: childAfterFinish };
 }
@@ -99,3 +139,4 @@ export async function getChildVisitHistory(childId: string) {
         isFreeVisit: v.isFreeVisit,
     }));
 }
+
