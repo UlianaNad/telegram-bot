@@ -11,6 +11,8 @@ export const CALLBACKS = {
         BACK: "child:back",
         PARENTS: "child:parents",
         PARENTS_ADD: "child:parents_add",
+        HISTORY: "child:history",
+        EDIT: "child:edit",
     },
     ADMIN: {
         SEARCH: "admin:search",

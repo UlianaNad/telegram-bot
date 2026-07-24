@@ -139,3 +139,14 @@ export async function getVisitStatsForRange(from: Date, to: Date) {
 
     return { totalVisits, paidVisits, freeVisits, revenueCents, activeCount };
 }
+
+export async function findVisitHistoryByChildId(childId: string, limit = 10) {
+    return prisma.visit.findMany({
+        where: {
+            childId,
+            status: { in: [VisitStatus.FINISHED, VisitStatus.CANCELLED] },
+        },
+        orderBy: { createdAt: "desc" },
+        take: limit,
+    });
+}

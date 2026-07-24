@@ -204,3 +204,10 @@ export async function fulfillInvite(inviteId: string) {
         data: { status: "FULFILLED" },
     });
 }
+
+export async function updateChild(
+    childId: string,
+    data: { firstName?: string; birthDate?: Date; notes?: string | null }
+) {
+    return prisma.child.update({ where: { id: childId }, data });
+}

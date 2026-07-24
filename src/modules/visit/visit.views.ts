@@ -96,3 +96,48 @@ export function createActiveVisitsText(
 ${items}
 `;
 }
+
+function formatVisitDate(date: Date): string {
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const hours = String(date.getUTCHours()).padStart(2, "0");
+    const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+    return `${day}.${month} ${hours}:${minutes}`;
+}
+
+export function createChildHistoryText(
+    visits: {
+        status: string;
+        startedAt: Date;
+        durationMinutes: number | null;
+        priceCents: number | null;
+        isFreeVisit: boolean;
+    }[],
+    currency: string
+): string {
+    if (visits.length === 0) {
+        return `
+📜 <b>Історія відвідувань</b>
+
+Історія порожня.
+`;
+    }
+
+    const items = visits
+        .map((v) => {
+            if (v.status === "CANCELLED") {
+                return `${formatVisitDate(v.startedAt)}\n❌ Скасовано`;
+            }
+            const priceLine = v.isFreeVisit
+                ? "Безкоштовно"
+                : `${((v.priceCents ?? 0) / 100).toFixed(2)} ${currency}`;
+            return `${formatVisitDate(v.startedAt)}\n${v.durationMinutes ?? 0} хв · ${priceLine}`;
+        })
+        .join("\n━━━━━━━━━━━━\n");
+
+    return `
+📜 <b>Історія відвідувань</b>
+
+${items}
+`;
+}

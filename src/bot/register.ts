@@ -11,6 +11,7 @@ import { registerVisitCallbacks } from "../modules/visit/visit.callback.js";
 import { adminSearchConversation } from "../modules/admin/admin-search.conversation.js";
 import { registerUserConversation } from "../modules/user/register-user.conversation.js";
 import { inviteParentConversation } from "../modules/child/invite-parent.conversation.js";
+import { editChildConversation } from "../modules/child/edit-child.conversation.js";
 
 export function registerBot(bot: Bot<BotContext>) {
     bot.use(conversations());
@@ -18,6 +19,7 @@ export function registerBot(bot: Bot<BotContext>) {
     bot.use(createConversation(adminSearchConversation));
     bot.use(createConversation(registerUserConversation));
     bot.use(createConversation(inviteParentConversation));
+    bot.use(createConversation(editChildConversation));
 
     registerStartCommand(bot);
 

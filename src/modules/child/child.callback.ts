@@ -3,6 +3,7 @@ import { BotContext } from "../../shared/types/context.js";
 import { CALLBACKS } from "../../shared/telegram/callbacks.js";
 import { showHome } from "../home/home.handler.js";
 import { showChildCard, showChildParents } from "./child.handler.js";
+import { showChildHistory } from "../visit/visit.handler.js";
 
 /**
  * Реєструє всі callback-хендлери, що стосуються модуля Child.
@@ -41,6 +42,25 @@ export function registerChildCallbacks(bot: Bot<BotContext>) {
         }
         await ctx.answerCallbackQuery();
         await ctx.conversation.enter("inviteParentConversation", childId);
+    });
+
+    bot.callbackQuery(/^child:history:/, async (ctx) => {
+    const childId = ctx.callbackQuery.data.split(":")[2];
+    if (!childId) {
+        await ctx.answerCallbackQuery({ text: "Помилка запиту." });
+        return;
+    }
+    await showChildHistory(ctx, childId);
+    });
+
+    bot.callbackQuery(/^child:edit:/, async (ctx) => {
+        const childId = ctx.callbackQuery.data.split(":")[2];
+        if (!childId) {
+            await ctx.answerCallbackQuery({ text: "Помилка запиту." });
+            return;
+        }
+        await ctx.answerCallbackQuery();
+        await ctx.conversation.enter("editChildConversation", childId);
     });
 }
  

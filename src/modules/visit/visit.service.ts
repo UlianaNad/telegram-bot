@@ -7,6 +7,7 @@ import {
     finishVisitTransaction,
     findActiveVisitsWithChildren,
     getVisitStatsForRange,
+    findVisitHistoryByChildId,
 } from "./visit.repository.js";
 import { getSettings } from "../settings/settings.repository.js";
 import { findChildById } from "../child/child.repository.js";
@@ -86,4 +87,15 @@ export async function getTodayStats() {
     const settings = await getSettings();
 
     return { ...stats, currency: settings.currency };
+}
+
+export async function getChildVisitHistory(childId: string) {
+    const visits = await findVisitHistoryByChildId(childId);
+    return visits.map((v) => ({
+        status: v.status,
+        startedAt: v.startedAt,
+        durationMinutes: v.durationMinutes,
+        priceCents: v.priceCents,
+        isFreeVisit: v.isFreeVisit,
+    }));
 }

@@ -29,3 +29,7 @@ export function createActiveVisitsKeyboard(
 
     return keyboard;
 }
+
+export function createChildHistoryKeyboard(childId: string): InlineKeyboard {
+    return new InlineKeyboard().text("⬅ Назад", `${CALLBACKS.CHILD.CARD}:${childId}`);
+}

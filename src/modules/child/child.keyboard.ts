@@ -39,12 +39,20 @@ export function createChildCardKeyboard(options: ChildCardKeyboardOptions): Inli
         if (options.visitStatus === "ACTIVE" && options.activeVisitId) {
             keyboard.text("🏁 Завершити візит", `${CALLBACKS.VISIT.FINISH}:${options.activeVisitId}`).row();
         }
+        keyboard
+            .text("📜 Історія", `${CALLBACKS.CHILD.HISTORY}:${options.childId}`)
+            .text("✏ Редагувати", `${CALLBACKS.CHILD.EDIT}:${options.childId}`)
+            .row();
         keyboard.text("⬅ Назад", CALLBACKS.ADMIN.BACK);
     } else {
         if (options.visitStatus === "NONE") {
             keyboard.text("▶ Почати візит", `${CALLBACKS.VISIT.START}:${options.childId}`).row();
         }
         keyboard.text("👨‍👩‍👧 Батьки", `${CALLBACKS.CHILD.PARENTS}:${options.childId}`).row();
+        keyboard
+            .text("📜 Історія", `${CALLBACKS.CHILD.HISTORY}:${options.childId}`)
+            .text("✏ Редагувати", `${CALLBACKS.CHILD.EDIT}:${options.childId}`)
+            .row();
         keyboard.text("⬅ Назад", CALLBACKS.HOME.CHILDREN);
     }
 
