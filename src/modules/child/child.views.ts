@@ -46,7 +46,8 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 export function createChildParentsText(
-    parents: { firstName: string | null; lastName: string | null; phone: string | null; role: string }[]
+    parents: { firstName: string | null; lastName: string | null; phone: string | null; role: string }[],
+    pendingInvites: { phone: string }[] = []
 ): string {
     const items = parents
         .map((p) => {
@@ -55,9 +56,13 @@ export function createChildParentsText(
         })
         .join("\n━━━━━━━━━━━━\n");
 
+    const pendingSection = pendingInvites.length > 0
+        ? `\n\n⏳ <b>Очікують реєстрації</b>\n${pendingInvites.map((i) => i.phone).join("\n")}`
+        : "";
+
     return `
 👨‍👩‍👧 <b>Батьки</b>
 
-${items}
+${items}${pendingSection}
 `;
 }

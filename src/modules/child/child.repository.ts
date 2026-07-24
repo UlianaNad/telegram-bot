@@ -174,3 +174,33 @@ export async function grantParentAccess(childId: string, userId: string) {
     });
     return { access: created, alreadyHadAccess: false };
 }
+
+export async function findPendingInviteForChildAndPhone(childId: string, phone: string) {
+    return prisma.parentInvite.findFirst({
+        where: { childId, phone, status: "PENDING" },
+    });
+}
+
+export async function createParentInvite(data: { childId: string; phone: string; invitedById: string }) {
+    return prisma.parentInvite.create({ data });
+}
+
+export async function findPendingInvitesByPhone(phone: string) {
+    return prisma.parentInvite.findMany({
+        where: { phone, status: "PENDING" },
+    });
+}
+
+export async function findPendingInvitesByChildId(childId: string) {
+    return prisma.parentInvite.findMany({
+        where: { childId, status: "PENDING" },
+        orderBy: { createdAt: "asc" },
+    });
+}
+
+export async function fulfillInvite(inviteId: string) {
+    return prisma.parentInvite.update({
+        where: { id: inviteId },
+        data: { status: "FULFILLED" },
+    });
+}

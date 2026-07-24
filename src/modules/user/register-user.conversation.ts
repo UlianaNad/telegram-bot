@@ -2,18 +2,10 @@ import { Conversation } from "@grammyjs/conversations";
 import { Keyboard } from "grammy";
 import { BotContext } from "../../shared/types/context.js";
 import { createUser, findUserByPhone } from "../user/user.repository.js";
+import { resolvePendingParentInvites } from "../child/child.service.js";
 import { showHome } from "../home/home.handler.js";
 import { showAdminHome } from "../admin/admin.handler.js";
-
-function normalizePhone(raw: string): string {
-    // Прибираємо все, крім цифр і початкового "+" —
-    // різні клієнти Telegram віддають номер по-різному
-    // (з "+", без нього, з пробілами).
-    const trimmed = raw.trim();
-    const hasPlus = trimmed.startsWith("+");
-    const digits = trimmed.replace(/\D/g, "");
-    return hasPlus ? `+${digits}` : digits;
-}
+import { normalizePhone } from "../../shared/utils/phone.js";
 
 export async function registerUserConversation(
   conversation: Conversation<BotContext, BotContext>,
@@ -71,7 +63,14 @@ export async function registerUserConversation(
     phone,
   });
 
-  await ctx.reply("Дякуємо!", { reply_markup: { remove_keyboard: true } });
+  const grantedCount = await resolvePendingParentInvites(phone, user.id);
+
+  await ctx.reply(
+    grantedCount > 0
+      ? `Дякуємо! Вам також надано доступ до ${grantedCount} ${grantedCount === 1 ? "картки" : "карток"} дітей.`
+      : "Дякуємо!",
+    { reply_markup: { remove_keyboard: true } }
+  );
 
   if (user.userType === "EMPLOYEE") {
     await showAdminHome(ctx);

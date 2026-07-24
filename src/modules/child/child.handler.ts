@@ -2,7 +2,7 @@ import { Context } from "grammy";
 import { createChildKeyboard, createChildCardKeyboard, createChildParentsKeyboard } from "./child.keyboard.js";
 import { renderScreen } from "../../shared/telegram/render.js";
 import { createChildText, createChildCardText, createChildParentsText } from "./child.views.js";
-import { getUserChildren, getChildCardData, getChildParents, isChildOwner } from "./child.service.js";
+import { getUserChildren, getChildCardData, getChildParents, isChildOwner, getChildPendingInvites } from "./child.service.js";
 import { findUserByTelegramId } from "../user/user.repository.js";
 import { createAdminHomeText, createTodayStatsText } from "../admin/admin.views.js";
 import { createAdminBackKeyboard, createAdminHomeKeyboard } from "../admin/admin.keyboard.js";
@@ -60,15 +60,16 @@ export async function showChildParents(ctx: Context, childId: string) {
         return;
     }
 
-    const [parents, user] = await Promise.all([
-        getChildParents(childId),
-        findUserByTelegramId(BigInt(ctx.from.id)),
-    ]);
-
+    const user = await findUserByTelegramId(BigInt(ctx.from.id));
     const isOwner = user ? await isChildOwner(childId, user.id) : false;
 
+    const [parents, pendingInvites] = await Promise.all([
+        getChildParents(childId),
+        isOwner ? getChildPendingInvites(childId) : Promise.resolve([]),
+    ]);
+
     await renderScreen(ctx, {
-        text: createChildParentsText(parents),
+        text: createChildParentsText(parents, pendingInvites),
         keyboard: createChildParentsKeyboard(childId, isOwner),
     });
 }

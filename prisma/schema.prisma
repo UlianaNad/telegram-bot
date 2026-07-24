@@ -19,12 +19,13 @@ model User {
   firstName  String?
   lastName   String?
   username   String?
-  phone      String? @unique
+  phone      String?  @unique
 
   userType     UserType      @default(PARENT)
   employeeRole EmployeeRole?
 
   childAccesses ChildAccess[]
+  sentInvites   ParentInvite[]
 
   auditLogs AuditLog[]
 
@@ -60,16 +61,16 @@ model Child {
   notes String?
 
   accesses ChildAccess[]
+  parentInvites ParentInvite[]
 
   status ChildStatus @default(OUTSIDE)
 
   visits Visit[]
 
-  // ── нове: лічильники лояльності ──
-  totalVisits      Int @default(0) // всього завершених візитів
-  loyaltyVisits    Int @default(0) // платних візитів з моменту останнього бонусу
-  freeVisitBalance Int @default(0) // скільки безкоштовних годин доступно зараз
-  freeVisitsUsed   Int @default(0) // скільки безкоштовних годин уже використано
+  totalVisits      Int @default(0)
+  loyaltyVisits    Int @default(0)
+  freeVisitBalance Int @default(0)
+  freeVisitsUsed   Int @default(0)
 
   isActive Boolean @default(true)
 
@@ -103,6 +104,31 @@ model ChildAccess {
   @@unique([userId, childId])
   @@index([userId])
   @@index([childId])
+}
+
+model ParentInvite {
+  id String @id @default(cuid())
+
+  childId String
+  child   Child @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  phone String
+
+  invitedById String
+  invitedBy   User @relation(fields: [invitedById], references: [id], onDelete: Cascade)
+
+  status ParentInviteStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([phone])
+  @@index([childId])
+}
+
+enum ParentInviteStatus {
+  PENDING
+  FULFILLED
 }
 
 enum ChildRole {

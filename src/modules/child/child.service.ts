@@ -7,6 +7,11 @@ import {
     findAccessesByChildId,
     findAccessForUser,
     grantParentAccess,
+    findPendingInviteForChildAndPhone,
+    createParentInvite,
+    findPendingInvitesByPhone,
+    fulfillInvite,
+    findPendingInvitesByChildId,
 } from "./child.repository.js";
 import { ChildCardData, ChildKeyboardItem } from "./child.types.js";
 import { findActiveOrPendingVisitByChildId } from "../visit/visit.repository.js";
@@ -91,16 +96,50 @@ export async function isChildOwner(childId: string, userId: string): Promise<boo
     return access?.role === "OWNER" && access.isActive;
 }
 
-export async function inviteParentByPhone(childId: string, phone: string) {
+/**
+ * Видає доступ негайно, якщо номер уже зареєстрований у боті.
+ * Якщо ні — зберігає запрошення, яке автоматично виконається,
+ * щойно ця людина сама зареєструється з тим самим номером
+ * (див. resolvePendingParentInvites).
+ */
+export async function inviteParentByPhone(childId: string, phone: string, invitedById: string) {
     const user = await findUserByPhone(phone);
-    if (!user) {
-        return { ok: false as const };
+
+    if (user) {
+        const result = await grantParentAccess(childId, user.id);
+        return {
+            ok: true as const,
+            pending: false as const,
+            alreadyHadAccess: result.alreadyHadAccess,
+            parentName: [user.firstName, user.lastName].filter(Boolean).join(" ") || "Батьки",
+        };
     }
 
-    const result = await grantParentAccess(childId, user.id);
-    return {
-        ok: true as const,
-        alreadyHadAccess: result.alreadyHadAccess,
-        parentName: [user.firstName, user.lastName].filter(Boolean).join(" ") || "Батьки",
-    };
+    const existingInvite = await findPendingInviteForChildAndPhone(childId, phone);
+    if (existingInvite) {
+        return { ok: true as const, pending: true as const, alreadyInvited: true };
+    }
+
+    await createParentInvite({ childId, phone, invitedById });
+    return { ok: true as const, pending: true as const, alreadyInvited: false };
+}
+
+/**
+ * Виконує всі відкладені запрошення на цей номер телефону —
+ * викликається одразу після реєстрації нового користувача.
+ */
+export async function resolvePendingParentInvites(phone: string, userId: string): Promise<number> {
+    const invites = await findPendingInvitesByPhone(phone);
+
+    for (const invite of invites) {
+        await grantParentAccess(invite.childId, userId);
+        await fulfillInvite(invite.id);
+    }
+
+    return invites.length;
+}
+
+export async function getChildPendingInvites(childId: string) {
+    const invites = await findPendingInvitesByChildId(childId);
+    return invites.map((invite) => ({ phone: invite.phone }));
 }

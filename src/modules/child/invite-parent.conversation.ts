@@ -3,13 +3,7 @@ import { BotContext } from "../../shared/types/context.js";
 import { isChildOwner, inviteParentByPhone } from "../child/child.service.js";
 import { findUserByTelegramId } from "../user/user.repository.js";
 import { showChildParents } from "../child/child.handler.js";
-
-function normalizePhone(raw: string): string {
-    const trimmed = raw.trim();
-    const hasPlus = trimmed.startsWith("+");
-    const digits = trimmed.replace(/\D/g, "");
-    return hasPlus ? `+${digits}` : digits;
-}
+import { normalizePhone } from "../../shared/utils/phone.js";
 
 export async function inviteParentConversation(
   conversation: Conversation<BotContext, BotContext>,
@@ -32,9 +26,7 @@ export async function inviteParentConversation(
     return;
   }
 
-  await ctx.reply(
-    "Введіть номер телефону батьків, яких хочете додати (вони мають бути зареєстровані в боті):"
-  );
+  await ctx.reply("Введіть номер телефону батьків, яких хочете додати:");
 
   let phone: string | undefined;
   while (!phone) {
@@ -47,20 +39,21 @@ export async function inviteParentConversation(
     phone = normalizePhone(text);
   }
 
-  const result = await inviteParentByPhone(childId, phone);
+  const result = await inviteParentByPhone(childId, phone, user.id);
 
-  if (!result.ok) {
+  if (result.pending) {
     await ctx.reply(
-      "Користувача з таким номером не знайдено. Попросіть їх спочатку запустити бота (/start) і поділитись номером телефону, а потім спробуйте ще раз."
+      result.alreadyInvited
+        ? "Запрошення на цей номер вже надіслано раніше й очікує реєстрації."
+        : "Цю людину ще не зареєстровано в боті. Доступ буде видано автоматично, щойно вона запустить бота і поділиться цим номером телефону."
     );
-    return;
+  } else {
+    await ctx.reply(
+      result.alreadyHadAccess
+        ? "Ця людина вже має доступ до картки."
+        : `✅ Доступ надано: ${result.parentName}.`
+    );
   }
-
-  await ctx.reply(
-    result.alreadyHadAccess
-      ? "Ця людина вже має доступ до картки."
-      : `✅ Доступ надано: ${result.parentName}.`
-  );
 
   await showChildParents(ctx, childId);
 }
