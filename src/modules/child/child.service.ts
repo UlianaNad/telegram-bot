@@ -67,7 +67,7 @@ export async function getChildCardData(childId: string): Promise<ChildCardData |
     if (!child) return null;
 
     const settings = await getSettings();
-    const visitsUntilBonus = Math.max(settings.freeVisitEvery - child.loyaltyVisits, 0);
+    const visitsUntilBonus = Math.max(settings.freeVisitEvery - 1 - child.loyaltyVisits, 0);
     const activeVisit = await findActiveOrPendingVisitByChildId(childId);
     
     return {

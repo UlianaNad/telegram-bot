@@ -53,9 +53,9 @@ export function createVisitFinishedText(input: {
         ? "Безкоштовна година"
         : `Сума: ${formatCents(input.priceCents, input.currency)}`;
 
-    const bonusLine = input.freeVisitBalance > 0
-        ? "🎉 Вітаємо! Наступна година вже доступна."
-        : `До наступної безкоштовної години: ${Math.max(input.freeVisitEvery - input.loyaltyVisits, 0)}`;
+   const bonusLine = input.freeVisitBalance > 0
+    ? "🎉 Вітаємо! Наступна година вже доступна."
+    : `До наступної безкоштовної години: ${Math.max(input.freeVisitEvery - 1 - input.loyaltyVisits, 0)}`;
 
     return `
 🏁 <b>Візит завершено</b>

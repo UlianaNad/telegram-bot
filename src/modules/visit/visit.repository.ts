@@ -94,7 +94,7 @@ export async function finishVisitTransaction(input: FinishVisitInput) {
             });
         } else {
             const newLoyaltyVisits = child.loyaltyVisits + 1;
-            const bonusEarned = newLoyaltyVisits >= input.freeVisitEvery;
+            const bonusEarned = newLoyaltyVisits >= input.freeVisitEvery - 1;
 
             await tx.child.update({
                 where: { id: child.id },
